@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Entity
-public class TaskDefinition {
+public class Task {
 
     @Id
     private String id;
@@ -12,10 +12,10 @@ public class TaskDefinition {
     private String actionType;
     private String data;
 
-    public TaskDefinition() {
+    public Task() {
     }
 
-    public TaskDefinition(String id, String cronExpression, String actionType, String data) {
+    public Task(String id, String cronExpression, String actionType, String data) {
         this.id = id;
         this.cronExpression = cronExpression;
         this.actionType = actionType;

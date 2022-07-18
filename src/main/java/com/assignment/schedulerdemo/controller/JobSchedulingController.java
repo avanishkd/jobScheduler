@@ -1,37 +1,38 @@
 package com.assignment.schedulerdemo.controller;
 
-import com.assignment.schedulerdemo.entity.TaskDefinition;
+import com.assignment.schedulerdemo.entity.JobEntity;
+import com.assignment.schedulerdemo.entity.Task;
 import com.assignment.schedulerdemo.respository.TaskDefinitionRepository;
+import com.assignment.schedulerdemo.service.JobDefinitionBean;
+import com.assignment.schedulerdemo.service.JobSchedulingService;
 import com.assignment.schedulerdemo.service.TaskDefinitionBean;
 import com.assignment.schedulerdemo.service.TaskSchedulingService;
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/schedule")
 public class JobSchedulingController {
 
     @Autowired
-    private TaskSchedulingService taskSchedulingService;
+    private JobSchedulingService jobSchedulingService;
 
     @Autowired
-    private TaskDefinitionBean taskDefinitionBean;
+    private JobDefinitionBean jobDefinitionBean;
 
-    @Autowired
-    TaskDefinitionRepository taskDefinitionRepository;
 
-    @PostMapping(path="/taskdef", consumes = "application/json", produces="application/json")
-    public void scheduleATask(@RequestBody TaskDefinition taskDefinition) {
-        taskDefinitionBean.setTaskDefinition(taskDefinition);
-        taskSchedulingService.scheduleATask(taskDefinition.getId(), taskDefinitionBean, taskDefinition.getCronExpression());
-        taskDefinitionRepository.save(taskDefinition);
+
+    @PostMapping(path="/jobDef", consumes = "application/json", produces="application/json")
+    public void scheduleAJob(@RequestBody JobEntity jobEntity) {
+        jobDefinitionBean.setJob(jobEntity);
+        jobSchedulingService.scheduleAJob(jobDefinitionBean);
+
     }
 
-    @GetMapping(path="/remove/{jobid}")
-    public void removeJob(@PathVariable String jobid) {
-        taskSchedulingService.removeScheduledTask(jobid);
-        taskDefinitionRepository.deleteById(jobid);
+    @GetMapping(path="/remove")
+    public void removeJob(@RequestParam String name,@RequestParam String group) throws SchedulerException {
+        jobSchedulingService.removeScheduledJob(name,group);
+
     }
 }

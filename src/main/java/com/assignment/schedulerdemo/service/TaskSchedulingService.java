@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ScheduledFuture;
+
 @Service
 public class TaskSchedulingService {
 
@@ -17,17 +18,17 @@ public class TaskSchedulingService {
 
     Map<String, ScheduledFuture<?>> jobsMap = new HashMap<>();
 
-    public void scheduleATask(String jobId, Runnable tasklet, String cronExpression) {
-        System.out.println("Scheduling task with job id: " + jobId + " and cron expression: " + cronExpression);
+    public void scheduleATask(Long jobId, String taskId, Runnable tasklet, String cronExpression) {
+        System.out.println("Scheduling task with job id: " + jobId + " and task ID: " + taskId + " and cron expression: " + cronExpression);
         ScheduledFuture<?> scheduledTask = taskScheduler.schedule(tasklet, new CronTrigger(cronExpression, TimeZone.getTimeZone(TimeZone.getDefault().getID())));
-        jobsMap.put(jobId, scheduledTask);
+        jobsMap.put(jobId+"."+taskId, scheduledTask);
     }
 
-    public void removeScheduledTask(String jobId) {
-        ScheduledFuture<?> scheduledTask = jobsMap.get(jobId);
-        if(scheduledTask != null) {
+    public void removeScheduledTask(String jobIdDotTaskId) {
+        ScheduledFuture<?> scheduledTask = jobsMap.get(jobIdDotTaskId);
+        if (scheduledTask != null) {
             scheduledTask.cancel(true);
-            jobsMap.put(jobId, null);
+            jobsMap.put(jobIdDotTaskId, null);
         }
     }
 }

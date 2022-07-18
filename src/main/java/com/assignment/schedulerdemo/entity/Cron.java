@@ -6,11 +6,8 @@ import javax.persistence.*;
 public class Cron {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cron_id")
+    @GeneratedValue
     private Long id;
-
-
 
     @Column(name = "cron_expression")
     private String cronExpression;

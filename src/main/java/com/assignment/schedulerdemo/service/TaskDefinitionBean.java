@@ -1,24 +1,25 @@
 package com.assignment.schedulerdemo.service;
 
-import com.assignment.schedulerdemo.entity.TaskDefinition;
+import com.assignment.schedulerdemo.entity.Task;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskDefinitionBean implements Runnable {
 
-    private TaskDefinition taskDefinition;
+    private Task task;
 
     @Override
     public void run() {
-        System.out.println("Running action: " + taskDefinition.getActionType());
-        System.out.println("With Data: " + taskDefinition.getData());
+        System.out.println("Running Task: " + task.getId());
+        System.out.println("Running action: " + task.getActionType());
+        System.out.println("With Data: " + task.getData());
     }
 
-    public TaskDefinition getTaskDefinition() {
-        return taskDefinition;
+    public Task getTaskDefinition() {
+        return task;
     }
 
-    public void setTaskDefinition(TaskDefinition taskDefinition) {
-        this.taskDefinition = taskDefinition;
+    public void setTaskDefinition(Task task) {
+        this.task = task;
     }
 }

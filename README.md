@@ -1,5 +1,5 @@
 # jobScheduler
-dynamic and static job scheduler
+dynamic and static jobEntity scheduler
 
 sample requests POST-->http://localhost:8080/schedule/taskdef 
 { "id": "2", "cronExpression": "*/1 * * * * ?", "actionType": "print data every minute", "data":"data to be printed evry minute" }
