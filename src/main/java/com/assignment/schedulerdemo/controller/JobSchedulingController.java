@@ -25,25 +25,35 @@ public class JobSchedulingController {
     TaskSchedulingService taskSchedulingService;
 
 
-
-
-
-    @PostMapping(path="/jobDef", consumes = "application/json", produces="application/json")
+    @PostMapping(path = "/jobDef", consumes = "application/json", produces = "application/json")
     public void scheduleAJob(@RequestBody JobEntity jobEntity) {
         jobDefinitionBean.setJob(jobEntity);
         jobSchedulingService.scheduleAJob(jobDefinitionBean);
 
     }
 
-    @GetMapping(path="job/remove")
-    public void removeJob(@RequestParam String name,@RequestParam String group) throws SchedulerException {
-        jobSchedulingService.removeScheduledJob(name,group);
+    @GetMapping(path = "job/remove")
+    public void removeJob(@RequestParam String name, @RequestParam String group) throws SchedulerException {
+        jobSchedulingService.removeScheduledJob(name, group);
 
     }
 
-    @GetMapping(path="task/remove")
+    @GetMapping(path = "task/remove")
     public void removeTask(@RequestParam String jobId, @RequestParam String taskId) {
-        taskSchedulingService.removeScheduledTask(jobId+"."+taskId);
+        taskSchedulingService.removeScheduledTask(jobId, taskId);
+    }
 
+    @GetMapping(path = "task/removeAll")
+    public void removeAllTask(@RequestParam String jobId) {
+        taskSchedulingService.removeScheduledTasks(jobId);
+    }
+
+    @GetMapping(path = "job/task/removeAll")
+    public void removeAllJobWithTasks(@RequestParam String jobId, @RequestParam String group) {
+        try {
+            jobSchedulingService.removeScheduledJobWithTasks(jobId,group);
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

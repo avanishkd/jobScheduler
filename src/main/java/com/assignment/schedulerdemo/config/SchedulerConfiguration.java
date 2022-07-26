@@ -50,4 +50,10 @@ public class SchedulerConfiguration {
 
         return quartzScheduler;
     }
+
+    @Bean
+    public Map<String,Map<String, ScheduledFuture<?>>> getJobsMap(){
+        Map<String,Map<String, ScheduledFuture<?>>> jobsMap = new HashMap<>();
+        return jobsMap;
+    }
 }

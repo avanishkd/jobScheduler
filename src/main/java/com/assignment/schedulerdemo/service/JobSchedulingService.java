@@ -10,6 +10,11 @@ import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ScheduledFuture;
+
 @Service
 public class JobSchedulingService {
 
@@ -19,9 +24,12 @@ public class JobSchedulingService {
     @Autowired
     TaskDefinitionRepository taskDefinitionRepository;
 
+
     @Autowired
     JobDefinitionRepository jobDefinitionRepository;
 
+    @Autowired
+    TaskSchedulingService taskSchedulingService;
     public void scheduleAJob(JobDefinitionBean jobBean) {
         try {
 
@@ -34,8 +42,8 @@ public class JobSchedulingService {
 
             // specify the job' s details..
             JobDetail job = JobBuilder.newJob(JobDefinitionBean.class)
-                    .withIdentity(jobBean.getJob().getJobId().toString(),jobBean.getJob().getJobGroupName())
-                    .usingJobData("tasks",taskArrayToJson)
+                    .withIdentity(jobBean.getJob().getJobId().toString(), jobBean.getJob().getJobGroupName())
+                    .usingJobData("tasks", taskArrayToJson)
                     .build();
 
             // specify the running period of the job
@@ -56,8 +64,15 @@ public class JobSchedulingService {
         }
     }
 
-    public void removeScheduledJob(String name, String group) throws SchedulerException {
-        Scheduler sch = schedulerConfiguration.getScheduler();
-        sch.deleteJob(JobKey.jobKey(name,group));
+    public void removeScheduledJob(String id, String group) throws SchedulerException {
+        Scheduler sch = schedulerConfiguration.getQuartzScheduler().getScheduler();
+        sch.deleteJob(JobKey.jobKey(id, group));
+    }
+
+    public void removeScheduledJobWithTasks(String id, String group) throws SchedulerException {
+        Scheduler sch = schedulerConfiguration.getQuartzScheduler().getScheduler();
+        sch.deleteJob(JobKey.jobKey(id, group));
+        taskSchedulingService.removeScheduledTasks(id);
+
     }
 }

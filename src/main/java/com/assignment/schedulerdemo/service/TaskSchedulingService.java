@@ -1,5 +1,6 @@
 package com.assignment.schedulerdemo.service;
 
+import com.assignment.schedulerdemo.config.SchedulerConfiguration;
 import com.assignment.schedulerdemo.respository.TaskDefinitionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -20,25 +21,48 @@ public class TaskSchedulingService {
     @Autowired
     private TaskDefinitionRepository taskDefinitionRepository;
 
-    Map<String, ScheduledFuture<?>> jobsMap = new HashMap<>();
+    @Autowired
+    SchedulerConfiguration schedulerConfiguration;
+
 
     public void scheduleATask(String jobId, String taskId, Runnable tasklet, String cronExpression) {
+        Map<String, ScheduledFuture<?>> taskMap;
+        if (schedulerConfiguration.getJobsMap().get(jobId) == null)
+            schedulerConfiguration.getJobsMap().put(jobId, new HashMap<>());
+        taskMap = schedulerConfiguration.getJobsMap().get(jobId);
         System.out.println("Scheduling task with job id: " + jobId + " and task ID: " + taskId + " and cron expression: " + cronExpression);
-        if(jobsMap.containsKey(jobId+"."+taskId))
-        {
-            System.out.println(jobId+"."+taskId+  "task already scheduled......");
+        if (taskMap.containsKey(jobId + "." + taskId) && taskMap.get(jobId + "." + taskId) != null) {
+
+
+            System.out.println(jobId + "." + taskId + "task already scheduled......");
             return;
         }
         ScheduledFuture<?> scheduledTask = taskScheduler.schedule(tasklet, new CronTrigger(cronExpression, TimeZone.getTimeZone(TimeZone.getDefault().getID())));
-        jobsMap.put(jobId+"."+taskId, scheduledTask);
+        taskMap.put(jobId + "." + taskId, scheduledTask);
     }
 
-    public void removeScheduledTask(String jobIdDotTaskId) {
-        ScheduledFuture<?> scheduledTask = jobsMap.get(jobIdDotTaskId);
+    public void removeScheduledTask(String jobId, String taskId) {
+        Map<String, ScheduledFuture<?>> taskMap = schedulerConfiguration.getJobsMap().get(jobId);
+        ScheduledFuture<?> scheduledTask = taskMap.get(jobId + "." + taskId);
         if (scheduledTask != null) {
             scheduledTask.cancel(true);
-            jobsMap.put(jobIdDotTaskId, null);
-//            taskDefinitionRepository.deleteById(jobIdDotTaskId);
+            taskMap.put(jobId + "." + taskId, null);
         }
     }
+
+    public void removeScheduledTasks(String jobId) {
+        Map<String, ScheduledFuture<?>> taskMap = schedulerConfiguration.getJobsMap().get(jobId);
+        ScheduledFuture<?> scheduledTask;
+
+        for (Map.Entry<String, ScheduledFuture<?>> mapItr : taskMap.entrySet()) {
+            scheduledTask = mapItr.getValue();
+            if (scheduledTask != null) {
+                scheduledTask.cancel(true);
+                taskMap.put(mapItr.getKey(), null);
+            }
+        }
+
+    }
+
+
 }
