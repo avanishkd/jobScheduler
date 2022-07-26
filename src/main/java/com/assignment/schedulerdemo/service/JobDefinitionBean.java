@@ -3,11 +3,15 @@ package com.assignment.schedulerdemo.service;
 import com.assignment.schedulerdemo.entity.JobEntity;
 import com.assignment.schedulerdemo.entity.Task;
 import com.assignment.schedulerdemo.respository.JobDefinitionRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import java.util.Set;
 
@@ -24,13 +28,24 @@ public class JobDefinitionBean implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+        ObjectMapper objectMapper = new ObjectMapper();
+        //Set pretty printing of json
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        String taskJSONString=jobExecutionContext.getJobDetail().getJobDataMap().getString("tasks");
+        Task[] taskJsonToArray;
+        try {
+             taskJsonToArray = objectMapper.readValue(taskJSONString, Task[].class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println("Running job: " + jobExecutionContext.getJobDetail());
-        JobEntity dbJobEntity = jobDefinitionRepository.findByJobId(Long.parseLong(jobExecutionContext.getJobDetail().getKey().getName()));
-        Set<Task> taskList = dbJobEntity.getTasks();
-        for (Task taskItr : taskList) {
+//        TaskSchedulingService taskSchedulingService=new TaskSchedulingService();
+
+        for (Task taskItr : taskJsonToArray) {
             TaskDefinitionBean taskDefinitionBean = new TaskDefinitionBean();
             taskDefinitionBean.setTaskDefinition(taskItr);
-            taskSchedulingService.scheduleATask(dbJobEntity.getJobId(), taskItr.getId(), taskDefinitionBean, taskItr.getCronExpression());
+            taskSchedulingService.scheduleATask(jobExecutionContext.getJobDetail().getKey().getName().toString(), taskItr.getId(), taskDefinitionBean, taskItr.getCronExpression());
         }
 
 

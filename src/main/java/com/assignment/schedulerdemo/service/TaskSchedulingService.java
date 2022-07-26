@@ -18,7 +18,7 @@ public class TaskSchedulingService {
 
     Map<String, ScheduledFuture<?>> jobsMap = new HashMap<>();
 
-    public void scheduleATask(Long jobId, String taskId, Runnable tasklet, String cronExpression) {
+    public void scheduleATask(String jobId, String taskId, Runnable tasklet, String cronExpression) {
         System.out.println("Scheduling task with job id: " + jobId + " and task ID: " + taskId + " and cron expression: " + cronExpression);
         ScheduledFuture<?> scheduledTask = taskScheduler.schedule(tasklet, new CronTrigger(cronExpression, TimeZone.getTimeZone(TimeZone.getDefault().getID())));
         jobsMap.put(jobId+"."+taskId, scheduledTask);
