@@ -46,6 +46,7 @@ public class JobDefinitionBean implements Job {
             TaskDefinitionBean taskDefinitionBean = new TaskDefinitionBean();
             taskDefinitionBean.setTaskDefinition(taskItr);
             taskSchedulingService.scheduleATask(jobExecutionContext.getJobDetail().getKey().getName().toString(), taskItr.getId(), taskDefinitionBean, taskItr.getCronExpression());
+
         }
 
 

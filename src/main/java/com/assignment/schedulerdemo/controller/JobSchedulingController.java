@@ -21,6 +21,11 @@ public class JobSchedulingController {
     @Autowired
     private JobDefinitionBean jobDefinitionBean;
 
+    @Autowired
+    TaskSchedulingService taskSchedulingService;
+
+
+
 
 
     @PostMapping(path="/jobDef", consumes = "application/json", produces="application/json")
@@ -30,9 +35,15 @@ public class JobSchedulingController {
 
     }
 
-    @GetMapping(path="/remove")
+    @GetMapping(path="job/remove")
     public void removeJob(@RequestParam String name,@RequestParam String group) throws SchedulerException {
         jobSchedulingService.removeScheduledJob(name,group);
+
+    }
+
+    @GetMapping(path="task/remove")
+    public void removeTask(@RequestParam String jobId, @RequestParam String taskId) {
+        taskSchedulingService.removeScheduledTask(jobId+"."+taskId);
 
     }
 }
